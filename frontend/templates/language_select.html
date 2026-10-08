@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block header %}
+<!-- No header on first visit language selection screen -->
+{% endblock %}
+
+{% block content %}
+<div class="lang-select-container">
+  <div class="lang-select-card">
+    <div style="font-size: 3rem; margin-bottom: 0.5rem;" aria-hidden="true">🌾</div>
+    
+    <h1 class="lang-title-en">FARMER RAIN ALERT</h1>
+    <h2 class="lang-title-ta">விவசாயி மழை எச்சரிக்கை</h2>
+
+    <p class="lang-prompt" style="font-weight: 500;">
+      Choose your language / உங்கள் மொழியைத் தேர்வு செய்யவும்
+    </p>
+
+    <div class="lang-options-grid" role="group" aria-label="Language options">
+      <button 
+        type="button" 
+        class="btn-monochrome lang-btn" 
+        onclick="TNFarmer.selectLanguage('ta')"
+        aria-label="தமிழ் மொழியைத் தேர்ந்தெடுக்கவும்"
+      >
+        <span>தமிழ்</span>
+        <span class="lang-btn-sub">Tamil</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="btn-monochrome lang-btn" 
+        onclick="TNFarmer.selectLanguage('en')"
+        aria-label="Select English language"
+      >
+        <span>English</span>
+        <span class="lang-btn-sub">ஆங்கிலம்</span>
+      </button>
+    </div>
+
+    <div style="margin-top: 2rem; display: flex; justify-content: center;">
+      <button id="theme-toggle-btn" class="theme-toggle-btn" type="button" aria-label="Toggle theme">
+        <span>🌙</span> <span>Theme</span>
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
