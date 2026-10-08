@@ -1,0 +1,12 @@
+# ==============================================================================
+# Crop Advisory Rules (YAML) - Tamil Nadu Farmer Rain Alert
+# ==============================================================================
+# Schema:
+# crop_rules:
+#   paddy:
+#     heavy_rain:
+#       action_key: "advice.paddy.heavy_rain"
+#       disclaimer: "Consider checking field drainage and protecting harvested grain."
+#
+# TODO (Phase 9): Full agronomic rules aligned with TNAU recommendations.
+rules: []
