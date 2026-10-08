@@ -1,0 +1,27 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-merge-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Prevent accidental phone numbers and credentials in git commits
+  - repo: local
+    hooks:
+      - id: reject-phone-numbers
+        name: Check for raw phone numbers in code/fixtures
+        entry: '(\+91[\-\s]?[6-9]\d{9}|[6-9]\d{9})'
+        language: pygrep
+        types: [text]
+        exclude: '(\.env\.example|\.git.*|.*\.jsonl|tests/.*test.*)'
