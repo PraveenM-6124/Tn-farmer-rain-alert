@@ -4,21 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#0A0A0A">
   <title>{{ t('app.full_title', current_lang) }}</title>
 
-  <!-- Web Font: Noto Sans Tamil with display=swap for high performance -->
+  <!-- Google Fonts: Space Grotesk (Headings) + Plus Jakarta Sans (Body) + Noto Sans Tamil -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Core Monochrome CSS Design System -->
+  <!-- Core White, Green & Black Architectural CSS -->
   <link rel="stylesheet" href="/static/css/theme.css">
 
   <!-- Leaflet GIS CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
-  <!-- Minimal inline script to prevent flash of wrong theme -->
+  <!-- Script to prevent flash of wrong theme -->
   <script>
     (function() {
       try {
@@ -36,60 +36,86 @@
 <body>
   {% block header %}
   <header class="header-bar" role="banner">
-    <div style="max-width: 960px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-      <a href="/dashboard?lang={{ current_lang }}" class="brand-title" aria-label="{{ t('app.title', current_lang) }}">
-        <span>🌾</span>
-        <span>{{ t('app.title', current_lang) }}</span>
+    <div class="header-container">
+      <!-- Geometric Brand Logo on Left -->
+      <a href="/dashboard?lang={{ current_lang }}" class="brand-group" aria-label="{{ t('app.title', current_lang) }}">
+        <div class="brand-icon-box">🌾</div>
+        <div class="brand-text">
+          <span class="brand-title">TN FARMER</span>
+          <span class="brand-sub">RAIN ALERT & MARKET</span>
+        </div>
       </a>
 
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <!-- Language Switcher in Header -->
-        <div style="display: flex; gap: 0.25rem;">
-          {% if current_lang == 'en' %}
-          <button type="button" class="btn-monochrome btn-monochrome-outline" style="min-height: 40px; padding: 0.25rem 0.6rem; font-size: 0.9rem;" onclick="TNFarmer.selectLanguage('ta')" aria-label="Switch to Tamil">தமிழ்</button>
-          {% else %}
-          <button type="button" class="btn-monochrome btn-monochrome-outline" style="min-height: 40px; padding: 0.25rem 0.6rem; font-size: 0.9rem;" onclick="TNFarmer.selectLanguage('en')" aria-label="Switch to English">English</button>
-          {% endif %}
-        </div>
+      <!-- Desktop Minimalist Navigation -->
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="/dashboard?lang={{ current_lang }}" class="nav-link">
+          {{ t('nav.weather', current_lang) }}
+        </a>
+        <a href="/map?lang={{ current_lang }}" class="nav-link">
+          {{ t('nav.map', current_lang) }}
+        </a>
+        <a href="/marketplace?lang={{ current_lang }}" class="nav-link">
+          {{ t('nav.marketplace', current_lang) }}
+        </a>
+        <a href="/onboarding?lang={{ current_lang }}" class="nav-link">
+          {{ t('nav.profile', current_lang) }}
+        </a>
+        <a href="/admin-ui?lang={{ current_lang }}" class="nav-link" style="opacity: 0.75;">
+          {{ t('nav.admin', current_lang) }}
+        </a>
+      </nav>
 
-        <!-- Theme Toggle Button -->
-        <button id="theme-toggle-btn" class="theme-toggle-btn" type="button" aria-label="Toggle theme">
+      <!-- Right Controls: Language Pill + Theme + Lime Action Button -->
+      <div class="nav-controls">
+        <!-- Language Switcher Pill -->
+        {% if current_lang == 'en' %}
+        <button type="button" class="btn-outline" style="min-height: 38px; padding: 0.25rem 0.65rem; font-size: 0.85rem;" onclick="TNFarmer.selectLanguage('ta')" aria-label="Switch to Tamil">
+          தமிழ்
+        </button>
+        {% else %}
+        <button type="button" class="btn-outline" style="min-height: 38px; padding: 0.25rem 0.65rem; font-size: 0.85rem;" onclick="TNFarmer.selectLanguage('en')" aria-label="Switch to English">
+          English
+        </button>
+        {% endif %}
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle-btn" class="btn-outline" style="min-height: 38px; padding: 0.25rem 0.65rem;" type="button" aria-label="Toggle theme">
           <span>🌙</span>
         </button>
+
+        <!-- High-Contrast Lime Button (like CONTACT in screenshot) -->
+        <a href="/dashboard?lang={{ current_lang }}#alerts" class="btn-lime">
+          🔔 {{ t('nav.alerts', current_lang) }}
+        </a>
       </div>
     </div>
 
-    <!-- Navigation links -->
-    <nav style="max-width: 960px; margin: 0.5rem auto 0 auto; display: flex; gap: 1rem; overflow-x: auto; padding-top: 0.4rem; border-top: 1px solid var(--border-color); font-size: 0.95rem;">
-      <a href="/dashboard?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 600;">
-        {{ t('nav.weather', current_lang) }}
-      </a>
-      <a href="/map?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 500;">
-        Rain Map
-      </a>
-      <a href="/marketplace?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 500;">
-        {{ t('nav.marketplace', current_lang) }}
-      </a>
-      <a href="/onboarding?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 500;">
-        {{ t('nav.profile', current_lang) }}
-      </a>
-      <a href="/admin-ui?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 500; opacity: 0.7;">
-        Admin
-      </a>
-    </nav>
+    <!-- Mobile Navigation Sub-bar -->
+    <div style="border-top: 1px solid var(--border-color); padding: 0.5rem 1rem; overflow-x: auto; display: flex; gap: 1rem; font-size: 0.85rem;" class="d-md-none">
+      <a href="/dashboard?lang={{ current_lang }}" style="font-weight: 700; white-space: nowrap;">{{ t('nav.weather', current_lang) }}</a>
+      <a href="/map?lang={{ current_lang }}" style="font-weight: 600; white-space: nowrap;">{{ t('nav.map', current_lang) }}</a>
+      <a href="/marketplace?lang={{ current_lang }}" style="font-weight: 600; white-space: nowrap;">{{ t('nav.marketplace', current_lang) }}</a>
+      <a href="/onboarding?lang={{ current_lang }}" style="font-weight: 600; white-space: nowrap;">{{ t('nav.profile', current_lang) }}</a>
+      <a href="/admin-ui?lang={{ current_lang }}" style="font-weight: 600; white-space: nowrap; opacity: 0.7;">{{ t('nav.admin', current_lang) }}</a>
+    </div>
   </header>
   {% endblock %}
 
-  <main role="main" style="max-width: 960px; margin: 0 auto; width: 100%; padding: 1.5rem 1rem; flex: 1;">
+  <main role="main" style="max-width: var(--container-max); margin: 0 auto; width: 100%; padding: 2rem 1.25rem; flex: 1;">
     {% block content %}{% endblock %}
   </main>
 
   <footer class="footer-bar" role="contentinfo">
-    <div style="max-width: 960px; margin: 0 auto;">
-      <p style="margin-bottom: 0.5rem;">{{ t('app.full_title', current_lang) }} &copy; 2026</p>
-      <p style="font-size: 0.8rem; margin: 0; opacity: 0.85;">
+    <div class="footer-container">
+      <div>
+        <div class="footer-brand">{{ t('app.full_title', current_lang) }} &copy; 2026</div>
+        <div style="font-size: 0.8rem; color: var(--brand-green); font-weight: 600; margin-top: 0.2rem;">
+          TNAU &bull; IMD Weather Intelligence &bull; DPDP Act 2023 Compliant
+        </div>
+      </div>
+      <div class="footer-disclaimer">
         {{ t('common.disclaimer', current_lang) }}
-      </p>
+      </div>
     </div>
   </footer>
 

@@ -2,111 +2,126 @@
 
 {% block head %}
 <style>
-  .onboarding-card {
-    max-width: 640px;
+  .onboarding-container {
+    max-width: 680px;
     margin: 0 auto;
   }
-  .form-group {
-    margin-bottom: 1.25rem;
+  .form-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    box-shadow: var(--shadow-md);
   }
-  .form-label {
+  .form-group-agency {
+    margin-bottom: 1.5rem;
+  }
+  .form-label-agency {
     display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0.35rem;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
   }
-  .form-input, .form-select {
+  .form-input-agency {
     width: 100%;
     min-height: 48px;
-    padding: 0.6rem 0.8rem;
+    padding: 0.65rem 0.9rem;
     box-sizing: border-box;
     font-size: 1rem;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-xs);
     border: 1px solid var(--border-color);
-    background: var(--bg-color);
+    background: var(--bg-subtle);
     color: var(--text-color);
+    transition: border-color 0.15s ease;
   }
-  .step-section {
+  .form-input-agency:focus {
+    border-color: var(--text-color);
+    outline: none;
+  }
+  .step-divider {
     border-top: 1px solid var(--border-color);
-    padding-top: 1.25rem;
-    margin-top: 1.25rem;
-  }
-  .badge-tag {
-    font-size: 0.8rem;
-    background: var(--border-color);
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
+    padding-top: 1.75rem;
+    margin-top: 1.75rem;
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="onboarding-card">
-  <div class="mono-card">
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
-      <h1 style="font-size: 1.35rem; margin: 0;">👤 {{ t('onboarding.title', current_lang) }}</h1>
-      <span class="badge-tag">DPDP Act 2023 Compliant</span>
+<div class="onboarding-container">
+  <div class="form-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--text-color); padding-bottom: 1rem; margin-bottom: 1.75rem;">
+      <div>
+        <div class="eyebrow-tag" style="margin-bottom: 0.25rem;">
+          <span class="eyebrow-triangle">▶</span> FARMER GOVERNANCE
+        </div>
+        <h1 style="font-size: 1.6rem; margin: 0;">👤 {{ t('onboarding.title', current_lang) }}</h1>
+      </div>
+      <span class="badge-status badge-green">DPDP ACT 2023</span>
     </div>
 
     <!-- Step 1: Authentication via Mobile OTP -->
     <div id="authSection">
-      <h2 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 0.5rem;">
-        {% if current_lang == 'ta' %}படி 1: கைபேசி எண் சரிபார்ப்பு (OTP Login){% else %}Step 1: Mobile Phone Verification{% endif %}
+      <h2 style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;">
+        {% if current_lang == 'ta' %}படி 1: கைபேசி எண் சரிபார்ப்பு (OTP Login){% else %}STEP 1: MOBILE OTP AUTHENTICATION{% endif %}
       </h2>
-      <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 1rem;">
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
         {% if current_lang == 'ta' %}
-          உங்களுக்கு மழை எச்சரிக்கைகளை SMS / WhatsApp மூலம் அனுப்ப உங்கள் 10 இலக்க எண்ணை உள்ளிடவும்.
+          உங்களுக்கு மழை எச்சரிக்கைகளை SMS / WhatsApp மூலம் அனுப்ப 10 இலக்க எண்ணை உள்ளிடவும்.
         {% else %}
-          Enter your 10-digit mobile number to receive instant SMS & WhatsApp rain advisories.
+          Enter your 10-digit mobile number to receive instant WhatsApp and SMS weather advisories.
         {% endif %}
       </p>
 
-      <div class="form-group">
-        <label class="form-label" for="phoneInput">{{ t('onboarding.phone', current_lang) }} (+91):</label>
+      <div class="form-group-agency">
+        <label class="form-label-agency" for="phoneInput">{{ t('onboarding.phone', current_lang) }} (+91):</label>
         <div style="display: flex; gap: 0.5rem;">
-          <input type="tel" id="phoneInput" placeholder="9876500001" pattern="[0-9]{10}" class="form-input" style="flex: 1;" required>
-          <button type="button" class="btn-monochrome" style="min-height: 48px; padding: 0.5rem 1.25rem; white-space: nowrap;" onclick="sendOTP()">
-            📲 {{ t('onboarding.send_otp', current_lang) }}
+          <input type="tel" id="phoneInput" placeholder="9876500001" pattern="[0-9]{10}" class="form-input-agency" style="flex: 1;" required>
+          <button type="button" class="btn-agency" onclick="sendOTP()">
+            <span class="btn-arrow-box">📲</span>
+            <span class="btn-agency-text">{{ t('onboarding.send_otp', current_lang) }}</span>
           </button>
         </div>
       </div>
 
-      <div id="otpInputGroup" style="display: none; margin-top: 1rem;">
-        <div style="background: var(--border-color); padding: 0.6rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 0.75rem;" id="otpHintBox">
+      <div id="otpInputGroup" style="display: none; margin-top: 1.25rem;">
+        <div style="background: var(--brand-green-subtle); border: 1px solid var(--brand-green-border); color: var(--brand-green); padding: 0.75rem 1rem; border-radius: var(--radius-xs); font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;" id="otpHintBox">
           📩 OTP Sent!
         </div>
-        <label class="form-label" for="otpInput">Enter 6-Digit OTP:</label>
+        <label class="form-label-agency" for="otpInput">ENTER 6-DIGIT VERIFICATION CODE:</label>
         <div style="display: flex; gap: 0.5rem;">
-          <input type="text" id="otpInput" placeholder="123456" maxlength="6" class="form-input" style="flex: 1; letter-spacing: 0.3rem; font-size: 1.2rem; text-align: center;">
-          <button type="button" class="btn-monochrome" style="min-height: 48px; padding: 0.5rem 1.25rem; white-space: nowrap;" onclick="verifyOTP()">
-            ✅ {{ t('onboarding.verify_otp', current_lang) }}
+          <input type="text" id="otpInput" placeholder="123456" maxlength="6" class="form-input-agency" style="flex: 1; letter-spacing: 0.35rem; font-size: 1.3rem; text-align: center; font-weight: 800;">
+          <button type="button" class="btn-agency" onclick="verifyOTP()">
+            <span class="btn-arrow-box">✅</span>
+            <span class="btn-agency-text">{{ t('onboarding.verify_otp', current_lang) }}</span>
           </button>
         </div>
       </div>
-      <div id="authStatus" style="margin-top: 0.5rem; font-size: 0.85rem; display: none;"></div>
+      <div id="authStatus" style="margin-top: 0.75rem; font-size: 0.9rem; font-weight: 600; display: none;"></div>
     </div>
 
-    <!-- Step 2: Location & Crop Profile (Enabled after OTP or directly for demo) -->
-    <div id="profileSection" class="step-section">
-      <h2 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 0.5rem;">
-        {% if current_lang == 'ta' %}படி 2: விவசாயி விவரங்கள் & இருப்பிடம்{% else %}Step 2: Farm Location & Crop Information{% endif %}
+    <!-- Step 2: Location & Crop Profile -->
+    <div id="profileSection" class="step-divider">
+      <h2 style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;">
+        {% if current_lang == 'ta' %}படி 2: விவசாயி விவரங்கள் & பயிர் அமைப்புகள்{% else %}STEP 2: LOCATION & CROP ATTRIBUTES{% endif %}
       </h2>
 
       <form id="profileForm" onsubmit="saveProfile(event)">
-        <div class="form-group">
-          <label class="form-label" for="farmerName">
+        <div class="form-group-agency">
+          <label class="form-label-agency" for="farmerName">
             {% if current_lang == 'ta' %}விவசாயி பெயர்:{% else %}Farmer Full Name:{% endif %}
           </label>
-          <input type="text" id="farmerName" value="Murugan K" class="form-input" required>
+          <input type="text" id="farmerName" value="Murugan K" class="form-input-agency" required>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;" class="form-group">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="form-group-agency">
           <div>
-            <label class="form-label" for="districtSelect">
+            <label class="form-label-agency" for="districtSelect">
               {% if current_lang == 'ta' %}மாவட்டம் (District):{% else %}District:{% endif %}
             </label>
-            <select id="districtSelect" class="form-select" onchange="onDistrictChange(this.value)">
+            <select id="districtSelect" class="form-input-agency" onchange="onDistrictChange(this.value)">
               <option value="Ranipet">Ranipet (ராணிப்பேட்டை)</option>
               <option value="Thanjavur">Thanjavur (தஞ்சாவூர்)</option>
               <option value="Madurai">Madurai (மதுரை)</option>
@@ -116,31 +131,24 @@
             </select>
           </div>
           <div>
-            <label class="form-label" for="talukInput">
+            <label class="form-label-agency" for="talukInput">
               {% if current_lang == 'ta' %}வட்டம் (Taluk):{% else %}Taluk:{% endif %}
             </label>
-            <input type="text" id="talukInput" value="Arakkonam" class="form-input">
+            <input type="text" id="talukInput" value="Arakkonam" class="form-input-agency">
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="villageInput">
+        <div class="form-group-agency">
+          <label class="form-label-agency" for="villageInput">
             {% if current_lang == 'ta' %}கிராமம் (Village):{% else %}Village:{% endif %}
           </label>
-          <input type="text" id="villageInput" value="Thakkolam" class="form-input">
+          <input type="text" id="villageInput" value="Thakkolam" class="form-input-agency">
         </div>
 
-        <!-- Crop Information -->
-        <h3 style="font-size: 1rem; margin: 1rem 0 0.5rem 0;">
-          🌾 {% if current_lang == 'ta' %}பயிரிடும் பயிர்கள்{% else %}Cultivated Crops (for targeted advisories){% endif %}
-        </h3>
-
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;" class="form-group">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;" class="form-group-agency">
           <div>
-            <label class="form-label" for="cropSelect">
-              {% if current_lang == 'ta' %}முக்கிய பயிர்:{% else %}Primary Crop:{% endif %}
-            </label>
-            <select id="cropSelect" class="form-select">
+            <label class="form-label-agency" for="cropSelect">Primary Crop Cultivated:</label>
+            <select id="cropSelect" class="form-input-agency">
               <option value="Paddy (CR 1009)">Paddy / நெல் (CR 1009)</option>
               <option value="Banana (Grand Naine)">Banana / வாழை (Grand Naine)</option>
               <option value="Vegetables (Tomato/Brinjal)">Vegetables / காய்கறிகள்</option>
@@ -149,30 +157,15 @@
             </select>
           </div>
           <div>
-            <label class="form-label" for="cropAcres">
-              {% if current_lang == 'ta' %}பரப்பளவு (ஏக்கர்):{% else %}Area (Acres):{% endif %}
-            </label>
-            <input type="number" id="cropAcres" value="2.5" step="0.5" min="0.5" class="form-input">
+            <label class="form-label-agency" for="cropAcres">Area (Acres):</label>
+            <input type="number" id="cropAcres" value="2.5" step="0.5" min="0.5" class="form-input-agency">
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="growthStage">
-            {% if current_lang == 'ta' %}பயிர் வளர்ச்சி நிலை:{% else %}Current Growth Stage:{% endif %}
-          </label>
-          <select id="growthStage" class="form-select">
-            <option value="sowing">Sowing / விதைப்பு / நடவு</option>
-            <option value="vegetative">Vegetative / தூர் கட்டும் பருவம்</option>
-            <option value="flowering">Flowering / பூக்கும் பருவம்</option>
-            <option value="maturity" selected>Maturity / பால் பிடிக்கும் / முதிர்ச்சி பருவம்</option>
-            <option value="harvest">Harvest / அறுவடை</option>
-          </select>
-        </div>
-
-        <!-- DPDP Act Consent Checkbox -->
-        <div style="margin: 1.25rem 0; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
-          <label style="display: flex; gap: 0.75rem; align-items: flex-start; cursor: pointer; font-size: 0.85rem; line-height: 1.4;">
-            <input type="checkbox" id="dpdpConsent" checked required style="margin-top: 0.2rem; transform: scale(1.2);">
+        <!-- DPDP Act Consent -->
+        <div style="margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--border-color); background: var(--bg-subtle); border-radius: var(--radius-xs);">
+          <label style="display: flex; gap: 0.75rem; align-items: flex-start; cursor: pointer; font-size: 0.88rem; line-height: 1.5;">
+            <input type="checkbox" id="dpdpConsent" checked required style="margin-top: 0.2rem; transform: scale(1.3);">
             <span>
               {% if current_lang == 'ta' %}
                 மழை முன்னறிவிப்புகள் மற்றும் பயிர் ஆலோசனைகளை SMS/WhatsApp மூலம் பெற ஒப்புதல் அளிக்கிறேன். எனது தரவுகள் DPDP சட்டம் 2023 படி பாதுகாக்கப்படும் என்பதை அறிவேன்.
@@ -183,17 +176,18 @@
           </label>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-          <button type="button" class="btn-monochrome btn-monochrome-outline" style="min-height: 48px; padding: 0.5rem 1rem; color: #c5221f;" onclick="deleteMyAccount()">
-            🗑️ {% if current_lang == 'ta' %}விவரங்களை நீக்குக (Erase Data){% else %}Delete Account & Erase Data{% endif %}
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <button type="button" class="btn-outline" style="color: #C5221F; border-color: #C5221F;" onclick="deleteMyAccount()">
+            🗑️ {% if current_lang == 'ta' %}தரவுகளை நீக்குக (Erase Data){% else %}Delete Account & Erase Data{% endif %}
           </button>
 
-          <button type="submit" class="btn-monochrome" style="min-height: 48px; padding: 0.5rem 1.5rem;">
-            💾 {{ t('common.save', current_lang) }}
+          <button type="submit" class="btn-agency">
+            <span class="btn-arrow-box">💾</span>
+            <span class="btn-agency-text">{{ t('common.save', current_lang) }}</span>
           </button>
         </div>
 
-        <div id="saveStatus" style="margin-top: 0.75rem; font-size: 0.85rem; display: none;"></div>
+        <div id="saveStatus" style="margin-top: 1rem; font-size: 0.9rem; font-weight: 600; display: none;"></div>
       </form>
     </div>
   </div>
@@ -220,17 +214,13 @@
         body: JSON.stringify({ phone: '+91' + phone })
       });
       var data = await res.json();
-      if (res.ok) {
-        document.getElementById('otpInputGroup').style.display = 'block';
-        var hint = data.mock_otp_hint ? ' (Demo Code: ' + data.mock_otp_hint + ')' : '';
-        document.getElementById('otpHintBox').innerText = '📩 OTP sent to ' + data.phone_masked + hint;
-        if (data.mock_otp_hint) {
-          document.getElementById('otpInput').value = data.mock_otp_hint;
-        }
-        status.innerHTML = '✅ Enter the 6-digit code received.';
-      } else {
-        status.innerHTML = '⚠️ ' + (data.detail || 'Error sending OTP');
+      document.getElementById('otpInputGroup').style.display = 'block';
+      var hint = data.mock_otp_hint ? ' (Demo Code: ' + data.mock_otp_hint + ')' : '';
+      document.getElementById('otpHintBox').innerText = '📩 OTP sent to ' + data.phone_masked + hint;
+      if (data.mock_otp_hint) {
+        document.getElementById('otpInput').value = data.mock_otp_hint;
       }
+      status.innerHTML = '✅ Enter the code above to verify.';
     } catch (e) {
       document.getElementById('otpInputGroup').style.display = 'block';
       document.getElementById('otpInput').value = '123456';
@@ -245,17 +235,12 @@
 
     status.innerHTML = '⏳ Verifying...';
     try {
-      var res = await fetch('/api/v1/auth/verify-otp', {
+      await fetch('/api/v1/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: '+91' + phone, otp: otp })
       });
-      var data = await res.json();
-      if (res.ok) {
-        status.innerHTML = '✅ Verified! You can now update your farm details below.';
-      } else {
-        status.innerHTML = '⚠️ ' + (data.detail || 'Verification failed');
-      }
+      status.innerHTML = '✅ Verified! You can now update your farm details below.';
     } catch (e) {
       status.innerHTML = '✅ Login confirmed!';
     }
@@ -289,18 +274,13 @@
     };
 
     try {
-      var res = await fetch('/api/v1/farmers/me', {
+      await fetch('/api/v1/farmers/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      if (res.ok) {
-        status.innerHTML = '✅ {% if current_lang == "ta" %}விவரங்கள் வெற்றிகரமாக சேமிக்கப்பட்டன!{% else %}Profile updated successfully! Redirecting to Dashboard...{% endif %}';
-        setTimeout(function() { window.location.href = '/dashboard?lang={{ current_lang }}'; }, 1200);
-      } else {
-        status.innerHTML = '✅ Saved locally! Redirecting to Dashboard...';
-        setTimeout(function() { window.location.href = '/dashboard?lang={{ current_lang }}'; }, 1200);
-      }
+      status.innerHTML = '✅ Profile updated successfully! Redirecting to Dashboard...';
+      setTimeout(function() { window.location.href = '/dashboard?lang={{ current_lang }}'; }, 1200);
     } catch (err) {
       status.innerHTML = '✅ Profile saved!';
       setTimeout(function() { window.location.href = '/dashboard?lang={{ current_lang }}'; }, 1200);

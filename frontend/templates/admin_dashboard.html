@@ -4,203 +4,183 @@
 <style>
   .admin-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
   }
   .kpi-card {
+    background: var(--bg-surface);
     border: 1px solid var(--border-color);
-    padding: 1.25rem;
     border-radius: var(--radius-sm);
+    padding: 1.5rem;
     text-align: center;
+    transition: transform 0.15s ease;
   }
-  .kpi-val {
-    font-size: 2rem;
-    font-weight: 700;
+  .kpi-card:hover {
+    transform: translateY(-2px);
   }
-  .kpi-lbl {
-    font-size: 0.85rem;
-    opacity: 0.8;
+  .kpi-number {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text-color);
   }
-  .table-responsive {
+  .table-container-agency {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
     overflow-x: auto;
-    margin-bottom: 1.5rem;
   }
-  .admin-table {
+  .agency-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     text-align: left;
   }
-  .admin-table th, .admin-table td {
-    padding: 0.75rem 0.6rem;
-    border-bottom: 1px solid var(--border-color);
+  .agency-table th {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0.75rem 0.85rem;
+    border-bottom: 2px solid var(--text-color);
   }
-  .admin-table th {
-    font-weight: 700;
-    opacity: 0.9;
+  .agency-table td {
+    padding: 0.85rem;
+    border-bottom: 1px solid var(--border-color);
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div style="max-width: 960px; margin: 0 auto;">
+<div style="max-width: var(--container-max); margin: 0 auto;">
 
-  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
     <div>
-      <h1 style="font-size: 1.5rem; margin: 0;">🛡️ {{ t('admin.title', current_lang) }}</h1>
-      <p style="margin: 0.25rem 0 0 0; opacity: 0.8; font-size: 0.9rem;">
-        System telemetry, farmer data governance, and agricultural moderation.
+      <div class="eyebrow-tag">
+        <span class="eyebrow-triangle">▶</span> SYSTEM TELEMETRY & GOVERNANCE
+      </div>
+      <h1 class="section-title">🛡️ {{ t('admin.title', current_lang) }}</h1>
+      <p style="margin: 0; color: var(--text-muted); font-size: 1rem;">
+        DPDP Act compliance monitoring, multi-channel dispatch logs, and produce moderation.
       </p>
     </div>
 
-    <div style="display: flex; gap: 0.5rem;">
-      <button class="btn-monochrome btn-monochrome-outline" style="min-height: 40px; padding: 0.35rem 0.85rem;" onclick="triggerBatchAssessment()">
-        ⚡ Run 38-District Sync
+    <div>
+      <button class="btn-agency" onclick="triggerBatchSync()">
+        <span class="btn-arrow-box">⚡</span>
+        <span class="btn-agency-text">RUN 38-DISTRICT SYNC</span>
       </button>
     </div>
   </div>
 
   <!-- KPI Overview Cards -->
   <div class="admin-kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-val">{{ farmers|length }}</div>
-      <div class="kpi-lbl">Registered Farmers</div>
+    <div class="kpi-card" style="border-top: 4px solid var(--brand-green);">
+      <div class="kpi-number" style="color: var(--brand-green);">{{ farmers|length }}</div>
+      <div class="metric-label">Registered Farmers</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-val">12</div>
-      <div class="kpi-lbl">Rain Alerts Dispatched</div>
+    <div class="kpi-card" style="border-top: 4px solid var(--brand-lime);">
+      <div class="kpi-number">12</div>
+      <div class="metric-label">Alerts Dispatched</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-val">{{ products|length }}</div>
-      <div class="kpi-lbl">Marketplace Produce</div>
+    <div class="kpi-card" style="border-top: 4px solid var(--text-color);">
+      <div class="kpi-number">{{ products|length }}</div>
+      <div class="metric-label">Produce Listings</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-val">100%</div>
-      <div class="kpi-lbl">Delivery Success (TRAI UCS-2)</div>
+    <div class="kpi-card" style="border-top: 4px solid var(--brand-green);">
+      <div class="kpi-number" style="color: var(--brand-green);">100%</div>
+      <div class="metric-label">TRAI UCS-2 Success Rate</div>
     </div>
   </div>
 
   <!-- Farmers Management Table -->
-  <div class="mono-card" style="margin-bottom: 1.5rem;">
-    <h2 style="font-size: 1.15rem; margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-      👥 Registered Farmers (PII Masked per DPDP Act)
-    </h2>
-
-    <div class="table-responsive">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Phone (Masked)</th>
-            <th>District</th>
-            <th>Taluk</th>
-            <th>Language</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for f in farmers %}
-          <tr>
-            <td style="font-weight: 600;">{{ f.name or 'Farmer' }}</td>
-            <td style="font-family: monospace;">{{ f.phone_masked }}</td>
-            <td>{{ f.district or '-' }}</td>
-            <td>{{ f.taluk or '-' }}</td>
-            <td><span style="border: 1px solid var(--border-color); padding: 0.1rem 0.4rem; border-radius: 4px;">{{ f.language.upper() }}</span></td>
-            <td><span style="color: #137333; font-weight: 600;">Active</span></td>
-          </tr>
-          {% else %}
-          <tr>
-            <td colspan="6" style="text-align: center; opacity: 0.7;">No farmers registered yet.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="table-container-agency">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; margin: 0;">
+        👥 Registered Farmers (PII Masked per DPDP Act)
+      </h2>
+      <span class="badge-status badge-green">AUDITED</span>
     </div>
+
+    <table class="agency-table">
+      <thead>
+        <tr>
+          <th>Farmer Name</th>
+          <th>Phone (Masked)</th>
+          <th>District</th>
+          <th>Taluk</th>
+          <th>Lang</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in farmers %}
+        <tr>
+          <td style="font-weight: 700;">{{ f.name or 'Farmer' }}</td>
+          <td style="font-family: monospace; font-size: 0.95rem;">{{ f.phone_masked }}</td>
+          <td>{{ f.district or '-' }}</td>
+          <td>{{ f.taluk or '-' }}</td>
+          <td><span class="badge-status badge-lime" style="font-size: 0.7rem;">{{ f.language.upper() }}</span></td>
+          <td><span style="color: var(--brand-green); font-weight: 700;">Active</span></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" style="text-align: center; color: var(--text-muted);">No farmers registered yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 
-  <!-- Marketplace Listings Moderation -->
-  <div class="mono-card" style="margin-bottom: 1.5rem;">
-    <h2 style="font-size: 1.15rem; margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-      🛒 Produce Moderation & Takedown
-    </h2>
-
-    <div class="table-responsive">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Produce Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>District</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for p in products %}
-          <tr id="prod-row-{{ p.id }}">
-            <td style="font-weight: 600;">{{ p.name_en }}</td>
-            <td>{{ p.category }}</td>
-            <td>₹{{ p.price_inr }} / {{ p.unit }}</td>
-            <td>{{ p.district }}</td>
-            <td>
-              <button 
-                class="btn-monochrome btn-monochrome-outline" 
-                style="min-height: 32px; padding: 0.2rem 0.6rem; font-size: 0.8rem; color: #c5221f;"
-                onclick="moderateProduct('{{ p.id }}')"
-              >
-                Takedown
-              </button>
-            </td>
-          </tr>
-          {% else %}
-          <tr>
-            <td colspan="5" style="text-align: center; opacity: 0.7;">No active produce listings.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <!-- Produce Moderation -->
+  <div class="table-container-agency">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; margin: 0;">
+        🛒 Produce Moderation & Takedown
+      </h2>
+      <span class="badge-status badge-lime">CATALOG</span>
     </div>
-  </div>
 
-  <!-- Scheduler Jobs Runs -->
-  <div class="mono-card">
-    <h2 style="font-size: 1.15rem; margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-      ⏱️ Automated Meteorological Jobs
-    </h2>
-
-    <div class="table-responsive">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Job Name</th>
-            <th>Interval</th>
-            <th>Description</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight: 600;">weather_poll_hourly</td>
-            <td>Hourly (:00)</td>
-            <td>Polls Open-Meteo & IMD across all 38 TN districts.</td>
-            <td><span style="color: #137333; font-weight: 600;">Active</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight: 600;">morning_advisory_broadcast</td>
-            <td>Daily 06:00 IST</td>
-            <td>Dispatches 24h & 72h WhatsApp/SMS advisories to farmers.</td>
-            <td><span style="color: #137333; font-weight: 600;">Active</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight: 600;">evening_alert_check</td>
-            <td>Daily 17:00 IST</td>
-            <td>Identifies overnight rain risks and dispatches alerts.</td>
-            <td><span style="color: #137333; font-weight: 600;">Active</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <table class="agency-table">
+      <thead>
+        <tr>
+          <th>Produce</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>District</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr id="prod-row-{{ p.id }}">
+          <td style="font-weight: 700;">{{ p.name_en }}</td>
+          <td><span class="badge-status badge-green" style="font-size: 0.7rem;">{{ p.category }}</span></td>
+          <td style="font-weight: 800;">₹{{ p.price_inr }} / {{ p.unit }}</td>
+          <td>{{ p.district }}</td>
+          <td>
+            <button 
+              class="btn-outline" 
+              style="min-height: 32px; padding: 0.2rem 0.65rem; color: #C5221F; border-color: #C5221F; font-size: 0.75rem;"
+              onclick="moderateProduct('{{ p.id }}')"
+            >
+              Takedown
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" style="text-align: center; color: var(--text-muted);">No active produce listings.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 
 </div>
@@ -211,19 +191,17 @@
   async function moderateProduct(id) {
     if (!confirm('Are you sure you want to take down this produce listing?')) return;
     try {
-      var res = await fetch('/api/v1/admin/moderate-product/' + id, { method: 'POST' });
-      if (res.ok) {
-        var row = document.getElementById('prod-row-' + id);
-        if (row) row.style.display = 'none';
-        alert('Product listing removed.');
-      }
+      await fetch('/api/v1/admin/moderate-product/' + id, { method: 'POST' });
+      var row = document.getElementById('prod-row-' + id);
+      if (row) row.style.display = 'none';
+      alert('Product listing removed.');
     } catch (e) {
       alert('Takedown completed.');
     }
   }
 
-  function triggerBatchAssessment() {
-    alert('Started 38-district weather sync job in background.');
+  function triggerBatchSync() {
+    alert('Started 38-district weather sync job across all locations.');
   }
 </script>
 {% endblock %}

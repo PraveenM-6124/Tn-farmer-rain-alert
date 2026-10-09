@@ -1,6 +1,12 @@
 @echo off
-:: Batch script to add tnfarmerweathernoti.com to Windows hosts file with Administrator elevation
-echo Requesting administrator privileges to configure local domain...
-powershell -Command "Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile', '-Command', 'Add-Content -Path ''C:\Windows\System32\drivers\etc\hosts'' -Value \"`n127.0.0.1 tnfarmerweathernoti.com\"; Write-Host \"Domain tnfarmerweathernoti.com added successfully!\"; Start-Sleep -Seconds 2'"
-echo Done! You can now open http://tnfarmerweathernoti.com:8000 in your browser.
+title Configure Domain tnfarmerweathernoti.com
+cls
+echo ======================================================================
+echo    CONFIGURING DOMAIN: http://tnfarmerweathernoti.com:8000
+echo ======================================================================
+echo.
+echo Requesting administrator privileges to map tnfarmerweathernoti.com...
+powershell -Command "Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', 'Add-Content -Path \"$env:windir\System32\drivers\etc\hosts\" -Value \"`n127.0.0.1 tnfarmerweathernoti.com\"; Write-Host \"[OK] Domain tnfarmerweathernoti.com configured successfully!\" -ForegroundColor Green; Start-Sleep -Seconds 3'"
+echo.
+echo [DONE] Domain mapped to http://tnfarmerweathernoti.com:8000
 pause

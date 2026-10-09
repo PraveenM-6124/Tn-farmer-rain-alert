@@ -1,47 +1,70 @@
 {% extends "base.html" %}
 
 {% block header %}
-<!-- No header on first visit language selection screen -->
+<!-- Minimalist clean header on first-visit language select screen -->
+<header style="padding: 1.5rem 1.25rem; border-bottom: 1px solid var(--border-color); background: var(--bg-color);">
+  <div style="max-width: var(--container-max); margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+    <div class="brand-group">
+      <div class="brand-icon-box">🌾</div>
+      <div class="brand-text">
+        <span class="brand-title">TN FARMER</span>
+        <span class="brand-sub">RAIN ALERT & MARKETPLACE</span>
+      </div>
+    </div>
+
+    <div>
+      <button id="theme-toggle-btn" class="btn-outline" style="min-height: 38px; padding: 0.25rem 0.65rem;" type="button" aria-label="Toggle theme">
+        <span>🌙</span>
+      </button>
+    </div>
+  </div>
+</header>
 {% endblock %}
 
 {% block content %}
-<div class="lang-select-container">
-  <div class="lang-select-card">
-    <div style="font-size: 3rem; margin-bottom: 0.5rem;" aria-hidden="true">🌾</div>
+<div class="lang-screen-container">
+  <div class="lang-screen-card">
+    <div class="eyebrow-tag" style="margin-bottom: 1rem;">
+      <span class="eyebrow-triangle">▶</span> TAMIL NADU AGRICULTURAL PORTAL
+    </div>
     
-    <h1 class="lang-title-en">FARMER RAIN ALERT</h1>
-    <h2 class="lang-title-ta">விவசாயி மழை எச்சரிக்கை</h2>
+    <h1 style="font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 0.5rem 0;">
+      FARMER RAIN ALERT
+    </h1>
+    <h2 style="font-size: 1.6rem; font-weight: 700; color: var(--brand-green); margin: 0 0 1rem 0;">
+      விவசாயி மழை எச்சரிக்கை
+    </h2>
 
-    <p class="lang-prompt" style="font-weight: 500;">
-      Choose your language / உங்கள் மொழியைத் தேர்வு செய்யவும்
+    <p style="font-size: 1.05rem; color: var(--text-muted); margin: 0 auto 2rem auto; max-width: 480px; font-weight: 500;">
+      {{ t('language.select_prompt_bilingual', current_lang) }}
     </p>
 
     <div class="lang-options-grid" role="group" aria-label="Language options">
-      <button 
-        type="button" 
-        class="btn-monochrome lang-btn" 
+      <div 
+        class="lang-choice-card" 
         onclick="TNFarmer.selectLanguage('ta')"
+        role="button"
+        tabindex="0"
         aria-label="தமிழ் மொழியைத் தேர்ந்தெடுக்கவும்"
       >
-        <span>தமிழ்</span>
-        <span class="lang-btn-sub">Tamil</span>
-      </button>
+        <span class="lang-choice-title">தமிழ்</span>
+        <span class="lang-choice-sub">Tamil Language</span>
+      </div>
 
-      <button 
-        type="button" 
-        class="btn-monochrome lang-btn" 
+      <div 
+        class="lang-choice-card" 
         onclick="TNFarmer.selectLanguage('en')"
+        role="button"
+        tabindex="0"
         aria-label="Select English language"
       >
-        <span>English</span>
-        <span class="lang-btn-sub">ஆங்கிலம்</span>
-      </button>
+        <span class="lang-choice-title">English</span>
+        <span class="lang-choice-sub">ஆங்கிலம்</span>
+      </div>
     </div>
 
-    <div style="margin-top: 2rem; display: flex; justify-content: center;">
-      <button id="theme-toggle-btn" class="theme-toggle-btn" type="button" aria-label="Toggle theme">
-        <span>🌙</span> <span>Theme</span>
-      </button>
+    <div style="margin-top: 2.5rem; font-size: 0.8rem; color: var(--text-subtle);">
+      ⚡ Powered by TNAU &bull; IMD Precision Weather Radar &bull; DPDP Act 2023 Compliant
     </div>
   </div>
 </div>

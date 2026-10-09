@@ -38,7 +38,7 @@ app = FastAPI(
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if settings.DEBUG else ["http://localhost:8000"],
+    allow_origins=["*"] if settings.DEBUG else ["http://tnfarmerweathernoti.com:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

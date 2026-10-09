@@ -1,4 +1,4 @@
-"""Convenience launcher for Tamil Nadu Farmer Rain Alert application."""
+"""Launcher for Tamil Nadu Farmer Rain Alert application hosted on tnfarmerweathernoti.com."""
 
 import webbrowser
 
@@ -9,9 +9,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 65)
     print("  🌾 TAMIL NADU FARMER RAIN ALERT & MARKETPLACE")
     print("=" * 65)
-    print(f"\n  Serving website at : {url}")
-    print("  Local loopback URL : http://localhost:8000")
-    print("\n  Opening browser...")
+    print(f"\n  Website live at : {url}")
+    print(f"  Opening browser : {url}")
     print("=" * 65 + "\n")
 
     try:
