@@ -1,5 +1,5 @@
 /**
- * Tamil Nadu Farmer Rain Alert - Client-side Theme and Language Handler
+ * Tamil Nadu Farmer Rain Alert - Client-side Theme, Language & App Handlers
  * Zero-dependency vanilla JS for fast execution on low-end Android / 3G connections.
  */
 
@@ -55,8 +55,14 @@
     localStorage.setItem(LANG_KEY, lang);
     document.cookie = LANG_KEY + '=' + lang + ';path=/;max-age=31536000;SameSite=Lax';
 
-    // Navigate to homepage or current page with updated lang
-    window.location.href = '/?lang=' + encodeURIComponent(lang);
+    var currentPath = window.location.pathname;
+    if (currentPath === '/' || currentPath === '/language') {
+      window.location.href = '/dashboard?lang=' + encodeURIComponent(lang);
+    } else {
+      var searchParams = new URLSearchParams(window.location.search);
+      searchParams.set('lang', lang);
+      window.location.search = searchParams.toString();
+    }
   }
 
   // Initialize on script execution
@@ -68,7 +74,6 @@
     var themeBtn = document.getElementById('theme-toggle-btn');
     if (themeBtn) {
       themeBtn.addEventListener('click', toggleTheme);
-      // Re-run applyTheme to ensure correct icon text
       applyTheme(getPreferredTheme());
     }
 

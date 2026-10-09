@@ -30,15 +30,9 @@ class PIIMaskingFilter(logging.Filter):
             record.msg = mask_pii(record.msg)
         if record.args:
             if isinstance(record.args, dict):
-                record.args = {
-                    k: (mask_pii(v) if isinstance(v, str) else v)
-                    for k, v in record.args.items()
-                }
+                record.args = {k: (mask_pii(v) if isinstance(v, str) else v) for k, v in record.args.items()}
             elif isinstance(record.args, tuple):
-                record.args = tuple(
-                    mask_pii(arg) if isinstance(arg, str) else arg
-                    for arg in record.args
-                )
+                record.args = tuple(mask_pii(arg) if isinstance(arg, str) else arg for arg in record.args)
         return True
 
 

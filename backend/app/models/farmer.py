@@ -18,15 +18,11 @@ class Farmer(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     name: Mapped[str | None] = mapped_column(String(150), nullable=True)
 
     # Privacy: phone_hash used for lookup without exposing raw PII; encrypted phone for delivery
-    phone_hash: Mapped[str | None] = mapped_column(
-        String(64), nullable=True, unique=True, index=True
-    )
+    phone_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, unique=True, index=True)
     phone_encrypted: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # User Preferences
-    language: Mapped[str] = mapped_column(
-        String(5), nullable=False, default="ta", index=True
-    )  # 'ta' or 'en'
+    language: Mapped[str] = mapped_column(String(5), nullable=False, default="ta", index=True)  # 'ta' or 'en'
     theme_preference: Mapped[str] = mapped_column(
         String(10), nullable=False, default="system"
     )  # 'light', 'dark', 'system'
@@ -48,20 +44,23 @@ class Farmer(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     # Compliance & Account Status
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    is_consent_given: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
+    is_consent_given: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     role: Mapped[str] = mapped_column(String(20), default="farmer", nullable=False)
 
     # Soft delete timestamp for DPDP Act data deletion compliance
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    # Relationship to Location
+    # Relationships
     location = relationship("Location", foreign_keys=[location_id])
+    crops = relationship("Crop", back_populates="farmer", cascade="all, delete-orphan")
+    alerts = relationship("RainAlert", back_populates="farmer", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="farmer", cascade="all, delete-orphan")
+    notification_preferences = relationship(
+        "NotificationPreference", back_populates="farmer", uselist=False, cascade="all, delete-orphan"
+    )
+    products = relationship("Product", back_populates="farmer", cascade="all, delete-orphan")
 
     __table_args__ = (Index("idx_farmer_lang_theme", "language", "theme_preference"),)
 
     def __repr__(self) -> str:
-        return (
-            f"<Farmer id={self.id} lang={self.language} theme={self.theme_preference}>"
-        )
+        return f"<Farmer id={self.id} lang={self.language} theme={self.theme_preference}>"

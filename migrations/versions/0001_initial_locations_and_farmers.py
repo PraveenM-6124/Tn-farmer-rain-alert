@@ -46,19 +46,11 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["parent_id"], ["locations.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        op.f("ix_locations_name_en"), "locations", ["name_en"], unique=False
-    )
-    op.create_index(
-        op.f("ix_locations_name_ta"), "locations", ["name_ta"], unique=False
-    )
+    op.create_index(op.f("ix_locations_name_en"), "locations", ["name_en"], unique=False)
+    op.create_index(op.f("ix_locations_name_ta"), "locations", ["name_ta"], unique=False)
     op.create_index(op.f("ix_locations_level"), "locations", ["level"], unique=False)
-    op.create_index(
-        op.f("ix_locations_lgd_code"), "locations", ["lgd_code"], unique=False
-    )
-    op.create_index(
-        "idx_location_level_parent", "locations", ["level", "parent_id"], unique=False
-    )
+    op.create_index(op.f("ix_locations_lgd_code"), "locations", ["lgd_code"], unique=False)
+    op.create_index("idx_location_level_parent", "locations", ["level", "parent_id"], unique=False)
 
     # 2. farmers table
     op.create_table(
@@ -81,15 +73,9 @@ def upgrade() -> None:
         sa.Column("latitude", sa.Float(), nullable=True),
         sa.Column("longitude", sa.Float(), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.true()),
-        sa.Column(
-            "is_consent_given", sa.Boolean(), nullable=False, server_default=sa.false()
-        ),
-        sa.Column(
-            "role", sa.String(length=20), nullable=False, server_default="farmer"
-        ),
-        sa.Column(
-            "is_deleted", sa.Boolean(), nullable=False, server_default=sa.false()
-        ),
+        sa.Column("is_consent_given", sa.Boolean(), nullable=False, server_default=sa.false()),
+        sa.Column("role", sa.String(length=20), nullable=False, server_default="farmer"),
+        sa.Column("is_deleted", sa.Boolean(), nullable=False, server_default=sa.false()),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["location_id"], ["locations.id"], ondelete="SET NULL"),

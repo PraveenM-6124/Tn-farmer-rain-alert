@@ -1,7 +1,7 @@
 """Convenience launcher for Tamil Nadu Farmer Rain Alert application."""
 
-import sys
 import webbrowser
+
 import uvicorn
 
 if __name__ == "__main__":

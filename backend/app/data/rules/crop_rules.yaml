@@ -1,12 +1,72 @@
 # ==============================================================================
-# Crop Advisory Rules (YAML) - Tamil Nadu Farmer Rain Alert
+# Tamil Nadu Agricultural University (TNAU) Aligned Crop Advisory Rules
 # ==============================================================================
-# Schema:
-# crop_rules:
-#   paddy:
-#     heavy_rain:
-#       action_key: "advice.paddy.heavy_rain"
-#       disclaimer: "Consider checking field drainage and protecting harvested grain."
-#
-# TODO (Phase 9): Full agronomic rules aligned with TNAU recommendations.
-rules: []
+# Disclaimer: Advisory information based on meteorological forecasts and standard
+# agronomic practices. Farmers are advised to consult local agricultural officers.
+
+rules:
+  - crop: "paddy"
+    crop_name_en: "Paddy / Rice"
+    crop_name_ta: "நெல்"
+    condition: "heavy_rain"
+    min_rainfall_mm: 64.5
+    wind_risk: false
+    growth_stage: "any"
+    action_key: "advice.paddy.heavy_rain"
+    advice_en: "Check field drainage immediately, secure harvested paddy bundles on elevated ground, and postpone fertilizer or pesticide application."
+    advice_ta: "வயல் வடிகால் வசதியை உடனே சரிபார்க்கவும், அறுவடை செய்த நெற்கதிர்களை மேடான இடங்களில் பாதுகாக்கவும், உரமிடுதல் மற்றும் பூச்சிக்கொல்லி தெளிப்பதை ஒத்திவைக்கவும்."
+
+  - crop: "paddy"
+    crop_name_en: "Paddy / Rice"
+    crop_name_ta: "நெல்"
+    condition: "moderate_rain"
+    min_rainfall_mm: 15.6
+    wind_risk: false
+    growth_stage: "any"
+    action_key: "advice.paddy.moderate_rain"
+    advice_en: "Maintain 2–3 cm standing water; postpone foliar spraying and nitrogen top-dressing until showers cease."
+    advice_ta: "வயலில் 2–3 செ.மீ நீர்மட்டம் பராமரிக்கவும்; மழை நின்ற பிறகு மேல்உரம் மற்றும் இலைவழி தெளிப்பை மேற்கொள்ளவும்."
+
+  - crop: "banana"
+    crop_name_en: "Banana"
+    crop_name_ta: "வாழை"
+    condition: "strong_wind"
+    min_rainfall_mm: 0.0
+    wind_risk: true
+    growth_stage: "flowering"
+    action_key: "advice.banana.strong_wind"
+    advice_en: "Provide double-rope or casuarina propping to bunches older than 5 months to prevent tree lodging from gusty winds."
+    advice_ta: "காற்றினால் மரம் சாய்வதைத் தடுக்க 5 மாதங்களுக்கு மேற்பட்ட வாழைத்தார்களுக்கு சவுக்கு அல்லது கயிறு முட்டுக் கொடுக்கவும்."
+
+  - crop: "vegetables"
+    crop_name_en: "Vegetables (Tomato, Brinjal, Chilli)"
+    crop_name_ta: "காய்கறிகள் (தக்காளி, கத்தரி, மிளகாய்)"
+    condition: "heavy_rain"
+    min_rainfall_mm: 64.5
+    wind_risk: false
+    growth_stage: "maturity"
+    action_key: "advice.vegetables.heavy_rain"
+    advice_en: "Harvest marketable produce before rain onset; ensure raised-bed furrows are free of silt to prevent root-zone waterlogging."
+    advice_ta: "விற்பனைக்கு தயாராக உள்ள காய்கறிகளை உடனே அறுவடை செய்யவும்; வேர் அழுகல் வராமல் தடுக்க பாத்திகளில் நீர் தேங்காமல் பார்த்துக் கொள்ளவும்."
+
+  - crop: "groundnut"
+    crop_name_en: "Groundnut"
+    crop_name_ta: "நிலக்கடலை"
+    condition: "heavy_rain"
+    min_rainfall_mm: 64.5
+    wind_risk: false
+    growth_stage: "maturity"
+    action_key: "advice.groundnut.heavy_rain"
+    advice_en: "Avoid digging out groundnut pods during wet soil conditions; clear furrows to prevent in-pod sprouting."
+    advice_ta: "ஈரமான மண்ணில் காய் தோண்டுவதை தவிர்க்கவும்; வயலில் நீர் தேங்கினால் காய் முளைத்துவிடும் என்பதால் துரித வடிகால் அமைக்கவும்."
+
+  - crop: "sugarcane"
+    crop_name_en: "Sugarcane"
+    crop_name_ta: "கரும்பு"
+    condition: "strong_wind"
+    min_rainfall_mm: 20.0
+    wind_risk: true
+    growth_stage: "vegetative"
+    action_key: "advice.sugarcane.strong_wind"
+    advice_en: "Trash twist and wrap adjacent clumps together at 1.5m height to resist wind lodging."
+    advice_ta: "சூறைக்காற்றால் கரும்பு சாய்வதைத் தடுக்க அருகிலுள்ள கரும்பு தூர்களை ஒன்று சேர்த்து சோகை கொண்டு கட்டவும்."

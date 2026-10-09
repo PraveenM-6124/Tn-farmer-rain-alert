@@ -15,6 +15,9 @@
   <!-- Core Monochrome CSS Design System -->
   <link rel="stylesheet" href="/static/css/theme.css">
 
+  <!-- Leaflet GIS CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
   <!-- Minimal inline script to prevent flash of wrong theme -->
   <script>
     (function() {
@@ -34,7 +37,7 @@
   {% block header %}
   <header class="header-bar" role="banner">
     <div style="max-width: 960px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-      <a href="/?lang={{ current_lang }}" class="brand-title" aria-label="{{ t('app.title', current_lang) }}">
+      <a href="/dashboard?lang={{ current_lang }}" class="brand-title" aria-label="{{ t('app.title', current_lang) }}">
         <span>🌾</span>
         <span>{{ t('app.title', current_lang) }}</span>
       </a>
@@ -55,6 +58,25 @@
         </button>
       </div>
     </div>
+
+    <!-- Navigation links -->
+    <nav style="max-width: 960px; margin: 0.5rem auto 0 auto; display: flex; gap: 1rem; overflow-x: auto; padding-top: 0.4rem; border-top: 1px solid var(--border-color); font-size: 0.95rem;">
+      <a href="/dashboard?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 600;">
+        {{ t('nav.weather', current_lang) }}
+      </a>
+      <a href="/map?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 500;">
+        Rain Map
+      </a>
+      <a href="/marketplace?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 500;">
+        {{ t('nav.marketplace', current_lang) }}
+      </a>
+      <a href="/onboarding?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 500;">
+        {{ t('nav.profile', current_lang) }}
+      </a>
+      <a href="/admin-ui?lang={{ current_lang }}" style="text-decoration: none; padding: 0.25rem 0.5rem; font-weight: 500; opacity: 0.7;">
+        Admin
+      </a>
+    </nav>
   </header>
   {% endblock %}
 
@@ -71,6 +93,8 @@
     </div>
   </footer>
 
+  <!-- Leaflet GIS JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/static/js/main.js"></script>
   {% block scripts %}{% endblock %}
 </body>

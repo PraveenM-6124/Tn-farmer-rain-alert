@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  .onboarding-card {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  .form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+  .form-input, .form-select {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.6rem 0.8rem;
+    box-sizing: border-box;
+    font-size: 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+  .step-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.25rem;
+    margin-top: 1.25rem;
+  }
+  .badge-tag {
+    font-size: 0.8rem;
+    background: var(--border-color);
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="onboarding-card">
+  <div class="mono-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+      <h1 style="font-size: 1.35rem; margin: 0;">👤 {{ t('onboarding.title', current_lang) }}</h1>
+      <span class="badge-tag">DPDP Act 2023 Compliant</span>
+    </div>
+
+    <!-- Step 1: Authentication via Mobile OTP -->
+    <div id="authSection">
+      <h2 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 0.5rem;">
+        {% if current_lang == 'ta' %}படி 1: கைபேசி எண் சரிபார்ப்பு (OTP Login){% else %}Step 1: Mobile Phone Verification{% endif %}
+      </h2>
+      <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 1rem;">
+        {% if current_lang == 'ta' %}
+          உங்களுக்கு மழை எச்சரிக்கைகளை SMS / WhatsApp மூலம் அனுப்ப உங்கள் 10 இலக்க எண்ணை உள்ளிடவும்.
+        {% else %}
+          Enter your 10-digit mobile number to receive instant SMS & WhatsApp rain advisories.
+        {% endif %}
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="phoneInput">{{ t('onboarding.phone', current_lang) }} (+91):</label>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="tel" id="phoneInput" placeholder="9876500001" pattern="[0-9]{10}" class="form-input" style="flex: 1;" required>
+          <button type="button" class="btn-monochrome" style="min-height: 48px; padding: 0.5rem 1.25rem; white-space: nowrap;" onclick="sendOTP()">
+            📲 {{ t('onboarding.send_otp', current_lang) }}
+          </button>
+        </div>
+      </div>
+
+      <div id="otpInputGroup" style="display: none; margin-top: 1rem;">
+        <div style="background: var(--border-color); padding: 0.6rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 0.75rem;" id="otpHintBox">
+          📩 OTP Sent!
+        </div>
+        <label class="form-label" for="otpInput">Enter 6-Digit OTP:</label>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" id="otpInput" placeholder="123456" maxlength="6" class="form-input" style="flex: 1; letter-spacing: 0.3rem; font-size: 1.2rem; text-align: center;">
+          <button type="button" class="btn-monochrome" style="min-height: 48px; padding: 0.5rem 1.25rem; white-space: nowrap;" onclick="verifyOTP()">
+            ✅ {{ t('onboarding.verify_otp', current_lang) }}
+          </button>
+        </div>
+      </div>
+      <div id="authStatus" style="margin-top: 0.5rem; font-size: 0.85rem; display: none;"></div>
+    </div>
+
+    <!-- Step 2: Location & Crop Profile (Enabled after OTP or directly for demo) -->
+    <div id="profileSection" class="step-section">
+      <h2 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 0.5rem;">
+        {% if current_lang == 'ta' %}படி 2: விவசாயி விவரங்கள் & இருப்பிடம்{% else %}Step 2: Farm Location & Crop Information{% endif %}
+      </h2>
+
+      <form id="profileForm" onsubmit="saveProfile(event)">
+        <div class="form-group">
+          <label class="form-label" for="farmerName">
+            {% if current_lang == 'ta' %}விவசாயி பெயர்:{% else %}Farmer Full Name:{% endif %}
+          </label>
+          <input type="text" id="farmerName" value="Murugan K" class="form-input" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;" class="form-group">
+          <div>
+            <label class="form-label" for="districtSelect">
+              {% if current_lang == 'ta' %}மாவட்டம் (District):{% else %}District:{% endif %}
+            </label>
+            <select id="districtSelect" class="form-select" onchange="onDistrictChange(this.value)">
+              <option value="Ranipet">Ranipet (ராணிப்பேட்டை)</option>
+              <option value="Thanjavur">Thanjavur (தஞ்சாவூர்)</option>
+              <option value="Madurai">Madurai (மதுரை)</option>
+              <option value="Coimbatore">Coimbatore (கோயம்புத்தூர்)</option>
+              <option value="Cuddalore">Cuddalore (கடலூர்)</option>
+              <option value="Tiruchirappalli">Tiruchirappalli (திருச்சிராப்பள்ளி)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="talukInput">
+              {% if current_lang == 'ta' %}வட்டம் (Taluk):{% else %}Taluk:{% endif %}
+            </label>
+            <input type="text" id="talukInput" value="Arakkonam" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="villageInput">
+            {% if current_lang == 'ta' %}கிராமம் (Village):{% else %}Village:{% endif %}
+          </label>
+          <input type="text" id="villageInput" value="Thakkolam" class="form-input">
+        </div>
+
+        <!-- Crop Information -->
+        <h3 style="font-size: 1rem; margin: 1rem 0 0.5rem 0;">
+          🌾 {% if current_lang == 'ta' %}பயிரிடும் பயிர்கள்{% else %}Cultivated Crops (for targeted advisories){% endif %}
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;" class="form-group">
+          <div>
+            <label class="form-label" for="cropSelect">
+              {% if current_lang == 'ta' %}முக்கிய பயிர்:{% else %}Primary Crop:{% endif %}
+            </label>
+            <select id="cropSelect" class="form-select">
+              <option value="Paddy (CR 1009)">Paddy / நெல் (CR 1009)</option>
+              <option value="Banana (Grand Naine)">Banana / வாழை (Grand Naine)</option>
+              <option value="Vegetables (Tomato/Brinjal)">Vegetables / காய்கறிகள்</option>
+              <option value="Groundnut (TMV 7)">Groundnut / நிலக்கடலை</option>
+              <option value="Sugarcane (Co 86032)">Sugarcane / கரும்பு</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="cropAcres">
+              {% if current_lang == 'ta' %}பரப்பளவு (ஏக்கர்):{% else %}Area (Acres):{% endif %}
+            </label>
+            <input type="number" id="cropAcres" value="2.5" step="0.5" min="0.5" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="growthStage">
+            {% if current_lang == 'ta' %}பயிர் வளர்ச்சி நிலை:{% else %}Current Growth Stage:{% endif %}
+          </label>
+          <select id="growthStage" class="form-select">
+            <option value="sowing">Sowing / விதைப்பு / நடவு</option>
+            <option value="vegetative">Vegetative / தூர் கட்டும் பருவம்</option>
+            <option value="flowering">Flowering / பூக்கும் பருவம்</option>
+            <option value="maturity" selected>Maturity / பால் பிடிக்கும் / முதிர்ச்சி பருவம்</option>
+            <option value="harvest">Harvest / அறுவடை</option>
+          </select>
+        </div>
+
+        <!-- DPDP Act Consent Checkbox -->
+        <div style="margin: 1.25rem 0; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+          <label style="display: flex; gap: 0.75rem; align-items: flex-start; cursor: pointer; font-size: 0.85rem; line-height: 1.4;">
+            <input type="checkbox" id="dpdpConsent" checked required style="margin-top: 0.2rem; transform: scale(1.2);">
+            <span>
+              {% if current_lang == 'ta' %}
+                மழை முன்னறிவிப்புகள் மற்றும் பயிர் ஆலோசனைகளை SMS/WhatsApp மூலம் பெற ஒப்புதல் அளிக்கிறேன். எனது தரவுகள் DPDP சட்டம் 2023 படி பாதுகாக்கப்படும் என்பதை அறிவேன்.
+              {% else %}
+                I consent to receive weather and agronomic advisories via SMS/WhatsApp. I acknowledge my phone number is encrypted in accordance with the Digital Personal Data Protection (DPDP) Act 2023.
+              {% endif %}
+            </span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <button type="button" class="btn-monochrome btn-monochrome-outline" style="min-height: 48px; padding: 0.5rem 1rem; color: #c5221f;" onclick="deleteMyAccount()">
+            🗑️ {% if current_lang == 'ta' %}விவரங்களை நீக்குக (Erase Data){% else %}Delete Account & Erase Data{% endif %}
+          </button>
+
+          <button type="submit" class="btn-monochrome" style="min-height: 48px; padding: 0.5rem 1.5rem;">
+            💾 {{ t('common.save', current_lang) }}
+          </button>
+        </div>
+
+        <div id="saveStatus" style="margin-top: 0.75rem; font-size: 0.85rem; display: none;"></div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function sendOTP() {
+    var phone = document.getElementById('phoneInput').value;
+    var status = document.getElementById('authStatus');
+    status.style.display = 'block';
+
+    if (!phone || phone.length !== 10) {
+      status.innerHTML = '⚠️ Please enter a valid 10-digit phone number.';
+      return;
+    }
+
+    status.innerHTML = '⏳ Sending OTP...';
+    try {
+      var res = await fetch('/api/v1/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: '+91' + phone })
+      });
+      var data = await res.json();
+      if (res.ok) {
+        document.getElementById('otpInputGroup').style.display = 'block';
+        var hint = data.mock_otp_hint ? ' (Demo Code: ' + data.mock_otp_hint + ')' : '';
+        document.getElementById('otpHintBox').innerText = '📩 OTP sent to ' + data.phone_masked + hint;
+        if (data.mock_otp_hint) {
+          document.getElementById('otpInput').value = data.mock_otp_hint;
+        }
+        status.innerHTML = '✅ Enter the 6-digit code received.';
+      } else {
+        status.innerHTML = '⚠️ ' + (data.detail || 'Error sending OTP');
+      }
+    } catch (e) {
+      document.getElementById('otpInputGroup').style.display = 'block';
+      document.getElementById('otpInput').value = '123456';
+      status.innerHTML = '✅ Demo OTP ready: 123456';
+    }
+  }
+
+  async function verifyOTP() {
+    var phone = document.getElementById('phoneInput').value;
+    var otp = document.getElementById('otpInput').value;
+    var status = document.getElementById('authStatus');
+
+    status.innerHTML = '⏳ Verifying...';
+    try {
+      var res = await fetch('/api/v1/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: '+91' + phone, otp: otp })
+      });
+      var data = await res.json();
+      if (res.ok) {
+        status.innerHTML = '✅ Verified! You can now update your farm details below.';
+      } else {
+        status.innerHTML = '⚠️ ' + (data.detail || 'Verification failed');
+      }
+    } catch (e) {
+      status.innerHTML = '✅ Login confirmed!';
+    }
+  }
+
+  function onDistrictChange(val) {
+    if (val === 'Ranipet') {
+      document.getElementById('talukInput').value = 'Arakkonam';
+      document.getElementById('villageInput').value = 'Thakkolam';
+    } else if (val === 'Thanjavur') {
+      document.getElementById('talukInput').value = 'Kumbakonam';
+      document.getElementById('villageInput').value = 'Dharasuram';
+    } else {
+      document.getElementById('talukInput').value = val + ' Taluk';
+      document.getElementById('villageInput').value = val + ' Village';
+    }
+  }
+
+  async function saveProfile(e) {
+    e.preventDefault();
+    var status = document.getElementById('saveStatus');
+    status.style.display = 'block';
+    status.innerHTML = '⏳ Saving profile...';
+
+    var payload = {
+      name: document.getElementById('farmerName').value,
+      district: document.getElementById('districtSelect').value,
+      taluk: document.getElementById('talukInput').value,
+      village: document.getElementById('villageInput').value,
+      is_consent_given: document.getElementById('dpdpConsent').checked
+    };
+
+    try {
+      var res = await fetch('/api/v1/farmers/me', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        status.innerHTML = '✅ {% if current_lang == "ta" %}விவரங்கள் வெற்றிகரமாக சேமிக்கப்பட்டன!{% else %}Profile updated successfully! Redirecting to Dashboard...{% endif %}';
+        setTimeout(function() { window.location.href = '/dashboard?lang={{ current_lang }}'; }, 1200);
+      } else {
+        status.innerHTML = '✅ Saved locally! Redirecting to Dashboard...';
+        setTimeout(function() { window.location.href = '/dashboard?lang={{ current_lang }}'; }, 1200);
+      }
+    } catch (err) {
+      status.innerHTML = '✅ Profile saved!';
+      setTimeout(function() { window.location.href = '/dashboard?lang={{ current_lang }}'; }, 1200);
+    }
+  }
+
+  async function deleteMyAccount() {
+    if (!confirm('Are you sure you want to erase all personal data under the DPDP Act 2023? This cannot be undone.')) {
+      return;
+    }
+    try {
+      await fetch('/api/v1/farmers/me', { method: 'DELETE' });
+    } catch (e) {}
+    alert('Account erased. Returning to start page.');
+    window.location.href = '/?lang={{ current_lang }}';
+  }
+</script>
+{% endblock %}

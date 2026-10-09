@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  .weather-hero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .stat-box {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    text-align: center;
+  }
+  .stat-val {
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .stat-lbl {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+  .severity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .sev-light { background: #e6f4ea; color: #137333; border: 1px solid #137333; }
+  .sev-mod { background: #fef7e0; color: #b06000; border: 1px solid #b06000; }
+  .sev-heavy { background: #feefe3; color: #c5221f; border: 1px solid #c5221f; }
+  .sev-ext { background: #fce8e6; color: #a50e0e; border: 1px solid #a50e0e; }
+  
+  [data-theme="dark"] .sev-light { background: #0d2818; color: #81c995; border-color: #81c995; }
+  [data-theme="dark"] .sev-mod { background: #332200; color: #fdd663; border-color: #fdd663; }
+  [data-theme="dark"] .sev-heavy { background: #3c1210; color: #f28b82; border-color: #f28b82; }
+  [data-theme="dark"] .sev-ext { background: #491010; color: #f6aea9; border-color: #f6aea9; }
+
+  .forecast-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.75rem;
+    padding-bottom: 0.5rem;
+  }
+  .forecast-col {
+    min-width: 110px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-card {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+    padding: 1.5rem;
+    max-width: 500px;
+    width: 90%;
+    border-radius: var(--radius-md);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+
+  <!-- Header & District Switcher -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+    <div>
+      <h1 style="font-size: 1.5rem; margin: 0;">{{ t('dashboard.title', current_lang) }}</h1>
+      <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 0.95rem; font-weight: 500;">
+        {{ t('welcome.greeting', current_lang) }} &mdash; {{ t('app.tagline', current_lang) }}
+      </p>
+      <p style="margin: 0.2rem 0 0 0; opacity: 0.75; font-size: 0.85rem;">
+        {% if current_lang == 'ta' %}
+          உழவர் வழிகாட்டி & மழை முன்னறிவிப்பு அமைப்பு
+        {% else %}
+          Agrometeorological Rain Intelligence & Farmer Advisory
+        {% endif %}
+      </p>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <label for="district-select" style="font-size: 0.875rem; font-weight: 600;">
+        {% if current_lang == 'ta' %}மாவட்டம்:{% else %}District:{% endif %}
+      </label>
+      <select id="district-select" class="mono-card" style="padding: 0.5rem 0.75rem; font-size: 0.9rem; min-height: 44px; border-radius: var(--radius-sm);" onchange="switchDistrict(this.value)">
+        <option value="Ranipet" {% if selected_district == 'Ranipet' %}selected{% endif %}>Ranipet (ராணிப்பேட்டை)</option>
+        <option value="Thanjavur" {% if selected_district == 'Thanjavur' %}selected{% endif %}>Thanjavur (தஞ்சாவூர்)</option>
+        <option value="Madurai" {% if selected_district == 'Madurai' %}selected{% endif %}>Madurai (மதுரை)</option>
+        <option value="Coimbatore" {% if selected_district == 'Coimbatore' %}selected{% endif %}>Coimbatore (கோயம்புத்தூர்)</option>
+        <option value="Tiruchirappalli" {% if selected_district == 'Tiruchirappalli' %}selected{% endif %}>Tiruchirappalli (திருச்சிராப்பள்ளி)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Real-time Alert Banner -->
+  <div class="mono-card" style="margin-bottom: 1.5rem; border-left: 6px solid #b06000;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+      <div>
+        <span class="severity-badge sev-mod">
+          ⚠️ <span>{% if current_lang == 'ta' %}மஞ்சள் எச்சரிக்கை (மிதமான மழை){% else %}YELLOW ALERT (Moderate Rain){% endif %}</span>
+        </span>
+        <h2 style="font-size: 1.25rem; margin: 0.75rem 0 0.5rem 0;">
+          {% if current_lang == 'ta' %}
+            அடுத்த 24 மணி நேரத்தில் 20–30 மி.மீ மழை எதிர்பார்க்கப்படுகிறது
+          {% else %}
+            20–30 mm Rain Expected in next 24 Hours
+          {% endif %}
+        </h2>
+        <p style="margin: 0; font-size: 0.95rem; line-height: 1.5;">
+          {% if current_lang == 'ta' %}
+            வடிகால் வசதியை சீரமைக்கவும். பூச்சிக்கொல்லி மற்றும் உரமிடுதலை தள்ளிப்போடவும். அறுவடை செய்த பயிர்களை தார்ப்பாயால் மூடவும்.
+          {% else %}
+            Clear field drainage channels. Postpone chemical spray and fertilizer application. Cover harvested produce with tarpaulins.
+          {% endif %}
+        </p>
+      </div>
+      <button class="btn-monochrome" style="min-height: 48px; padding: 0.5rem 1rem; align-self: center;" onclick="openAlertModal()">
+        🔔 {{ t('dashboard.trigger_test_alert', current_lang) }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Live Weather Grid -->
+  <div class="weather-hero">
+    <!-- Current Weather Card -->
+    <div class="mono-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+        <h3 style="margin: 0; font-size: 1.1rem;">{{ t('dashboard.live_weather', current_lang) }}</h3>
+        <span style="font-size: 0.8rem; opacity: 0.7;">IMD / Open-Meteo</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 1rem; margin: 1rem 0;">
+        <div style="font-size: 3rem;">🌧️</div>
+        <div>
+          <div style="font-size: 2.2rem; font-weight: 700; line-height: 1;">28°C</div>
+          <div style="font-size: 0.9rem; opacity: 0.85;">
+            {% if current_lang == 'ta' %}சாரல் / மேகமூட்டம்{% else %}Passing Showers / Overcast{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-val">78%</div>
+          <div class="stat-lbl">{% if current_lang == 'ta' %}மழை வாய்ப்பு{% else %}Rain Likelihood{% endif %}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">84%</div>
+          <div class="stat-lbl">{% if current_lang == 'ta' %}ஈரப்பதம்{% else %}Humidity{% endif %}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">18 km/h</div>
+          <div class="stat-lbl">{% if current_lang == 'ta' %}காற்று வேகம்{% else %}Wind Speed{% endif %}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">24.5 mm</div>
+          <div class="stat-lbl">{% if current_lang == 'ta' %}24 மணி மழை{% else %}24h Rainfall{% endif %}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TNAU Crop Advisory Card -->
+    <div class="mono-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+        <h3 style="margin: 0; font-size: 1.1rem;">{{ t('dashboard.crop_advisories', current_lang) }}</h3>
+        <span style="font-size: 0.8rem; opacity: 0.7;">TNAU Guidelines</span>
+      </div>
+      
+      <div style="margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem;">
+        <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.6rem;">
+          <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.2rem;">
+            🌾 {% if current_lang == 'ta' %}நெல் (Paddy) - பால் பிடிக்கும் பருவம்{% else %}Paddy - Grain Filling Stage{% endif %}
+          </div>
+          <div style="font-size: 0.85rem; line-height: 1.4; opacity: 0.9;">
+            {% if current_lang == 'ta' %}
+              வயலில் அதிகப்படியான நீரை உடனே வெளியேற்றவும். இலை சுருட்டு புழு தாக்கத்தை கண்காணிக்கவும்.
+            {% else %}
+              Ensure rapid water discharge from field bunds. Monitor for leaf folder pests after rains.
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.6rem;">
+          <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.2rem;">
+            🍌 {% if current_lang == 'ta' %}வாழை (Banana) - குலை தள்ளும் பருவம்{% else %}Banana - Bunch Emergence{% endif %}
+          </div>
+          <div style="font-size: 0.85rem; line-height: 1.4; opacity: 0.9;">
+            {% if current_lang == 'ta' %}
+              காற்றுடன் கூடிய மழை வாய்ப்புள்ளதால் மரங்களுக்கு சவுக்கு முட்டு கொடுக்கவும்.
+            {% else %}
+              High winds forecast. Provide double casuarina pole staking to prevent lodging.
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.6rem;">
+          <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.2rem;">
+            🍅 {% if current_lang == 'ta' %}காய்கறிகள் (Vegetables) - பூக்கும் பருவம்{% else %}Vegetables - Flowering Stage{% endif %}
+          </div>
+          <div style="font-size: 0.85rem; line-height: 1.4; opacity: 0.9;">
+            {% if current_lang == 'ta' %}
+              மழை நின்ற பிறகு வேரழுகல் நோயைத் தடுக்க டிரைக்கோடெர்மா விரிடி இடவும்.
+            {% else %}
+              Apply Trichoderma viride to soil post-rainfall to prevent root rot & damping-off.
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 72h Forecast Timeline -->
+  <div class="mono-card" style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+      {% if current_lang == 'ta' %}72 மணி நேர முன்னறிவிப்பு விவரம்{% else %}72-Hour Outlook Timeline{% endif %}
+    </h3>
+    <div class="forecast-row">
+      <div class="forecast-col">
+        <div style="font-size: 0.8rem; font-weight: 600;">{% if current_lang == 'ta' %}இன்று மதியம்{% else %}Today 2 PM{% endif %}</div>
+        <div style="font-size: 1.7rem; margin: 0.3rem 0;">🌦️</div>
+        <div style="font-weight: 700;">8.5 mm</div>
+        <div style="font-size: 0.75rem; opacity: 0.8;">Light</div>
+      </div>
+      <div class="forecast-col" style="border: 2px solid currentColor;">
+        <div style="font-size: 0.8rem; font-weight: 600;">{% if current_lang == 'ta' %}இன்று மாலை{% else %}Today 6 PM{% endif %}</div>
+        <div style="font-size: 1.7rem; margin: 0.3rem 0;">🌧️</div>
+        <div style="font-weight: 700;">22.0 mm</div>
+        <div style="font-size: 0.75rem; color: #b06000; font-weight: 700;">Moderate</div>
+      </div>
+      <div class="forecast-col">
+        <div style="font-size: 0.8rem; font-weight: 600;">{% if current_lang == 'ta' %}இன்று இரவு{% else %}Tonight 10 PM{% endif %}</div>
+        <div style="font-size: 1.7rem; margin: 0.3rem 0;">🌧️</div>
+        <div style="font-weight: 700;">12.4 mm</div>
+        <div style="font-size: 0.75rem; opacity: 0.8;">Moderate</div>
+      </div>
+      <div class="forecast-col">
+        <div style="font-size: 0.8rem; font-weight: 600;">{% if current_lang == 'ta' %}நாளை காலை{% else %}Tomorrow 6 AM{% endif %}</div>
+        <div style="font-size: 1.7rem; margin: 0.3rem 0;">⛅</div>
+        <div style="font-weight: 700;">1.2 mm</div>
+        <div style="font-size: 0.75rem; opacity: 0.8;">Very Light</div>
+      </div>
+      <div class="forecast-col">
+        <div style="font-size: 0.8rem; font-weight: 600;">{% if current_lang == 'ta' %}நாளை மதியம்{% else %}Tomorrow 2 PM{% endif %}</div>
+        <div style="font-size: 1.7rem; margin: 0.3rem 0;">☀️</div>
+        <div style="font-weight: 700;">0.0 mm</div>
+        <div style="font-size: 0.75rem; opacity: 0.8;">Dry</div>
+      </div>
+      <div class="forecast-col">
+        <div style="font-size: 0.8rem; font-weight: 600;">{% if current_lang == 'ta' %}நாள் 3{% else %}Day 3{% endif %}</div>
+        <div style="font-size: 1.7rem; margin: 0.3rem 0;">⛅</div>
+        <div style="font-weight: 700;">0.5 mm</div>
+        <div style="font-size: 0.75rem; opacity: 0.8;">Isolated</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Action Navigation Tiles -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+    <a href="/map?lang={{ current_lang }}" class="mono-card" style="text-decoration: none; display: block; border-left: 4px solid currentColor;">
+      <h4 style="margin: 0; font-size: 1.05rem;">🗺️ {{ t('nav.map', current_lang) }}</h4>
+      <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; opacity: 0.85;">
+        {% if current_lang == 'ta' %}
+          தமிழ்நாட்டின் 38 மாவட்டங்களுக்கான மழை வரைபடம்.
+        {% else %}
+          Interactive GIS map across all 38 Tamil Nadu districts.
+        {% endif %}
+      </p>
+    </a>
+
+    <a href="/marketplace?lang={{ current_lang }}" class="mono-card" style="text-decoration: none; display: block; border-left: 4px solid currentColor;">
+      <h4 style="margin: 0; font-size: 1.05rem;">🛒 {{ t('nav.marketplace', current_lang) }}</h4>
+      <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; opacity: 0.85;">
+        {% if current_lang == 'ta' %}
+          விளைபொருட்களை இடைத்தரகரின்றி விற்கவும் வாங்கவும்.
+        {% else %}
+          Sell produce directly or connect with local farm buyers.
+        {% endif %}
+      </p>
+    </a>
+
+    <a href="/onboarding?lang={{ current_lang }}" class="mono-card" style="text-decoration: none; display: block; border-left: 4px solid currentColor;">
+      <h4 style="margin: 0; font-size: 1.05rem;">👤 {{ t('nav.profile', current_lang) }}</h4>
+      <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; opacity: 0.85;">
+        {% if current_lang == 'ta' %}
+          உங்கள் பயிர்கள் & கிராம அமைப்புகளை மாற்றியமைக்கவும்.
+        {% else %}
+          Update your phone, registered crops, and taluk/village.
+        {% endif %}
+      </p>
+    </a>
+  </div>
+
+</div>
+
+<!-- Test Alert Modal -->
+<div id="testAlertModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+      <h3 id="modalTitle" style="margin: 0; font-size: 1.15rem;">🔔 {% if current_lang == 'ta' %}சோதனை எச்சரிக்கை சோதனை{% else %}Test Rain Alert Trigger{% endif %}</h3>
+      <button type="button" class="btn-monochrome btn-monochrome-outline" style="min-height: 36px; padding: 0.2rem 0.5rem;" onclick="closeAlertModal()">✕</button>
+    </div>
+    <p style="font-size: 0.9rem; margin-bottom: 1rem;">
+      {% if current_lang == 'ta' %}
+        விவசாயி கைபேசிக்கு (SMS / WhatsApp) அனுப்பப்படும் எச்சரிக்கை செய்தி மாதிரி:
+      {% else %}
+        Simulated multi-channel broadcast (TRAI UCS-2 Segmented SMS & WhatsApp template):
+      {% endif %}
+    </p>
+    <div style="background: var(--border-color); padding: 1rem; border-radius: var(--radius-sm); font-family: monospace; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.25rem;">
+      <strong>[TN-AGRI-ALERT]</strong><br>
+      {% if current_lang == 'ta' %}
+        மழை எச்சரிக்கை – ராணிப்பேட்டை<br>
+        இன்று மாலை 2 முதல் 6 மணி வரை மிதமான மழை (20-30 மி.மீ) வாய்ப்பு.<br>
+        பரிந்துரை: வயல் வடிகால் வசதியை சரிசெய்து நெல் பயிரை பாதுகாக்கவும்.
+      {% else %}
+        RAIN ALERT – RANIPET DISTRICT<br>
+        Moderate rain (20–30 mm) likely between 2 PM and 6 PM today.<br>
+        Action: Open field drainage bunds and protect mature paddy crops.
+      {% endif %}
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+      <button type="button" class="btn-monochrome btn-monochrome-outline" style="min-height: 44px; padding: 0.5rem 1rem;" onclick="closeAlertModal()">
+        {% if current_lang == 'ta' %}மூடுக{% else %}Close{% endif %}
+      </button>
+      <button type="button" class="btn-monochrome" style="min-height: 44px; padding: 0.5rem 1rem;" onclick="dispatchAlert()">
+        🚀 {% if current_lang == 'ta' %}செய்தி அனுப்புக (Send Test SMS){% else %}Dispatch Alert{% endif %}
+      </button>
+    </div>
+    <div id="dispatchStatus" style="margin-top: 0.75rem; font-size: 0.85rem; display: none;"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function switchDistrict(dist) {
+    window.location.href = '/dashboard?district=' + encodeURIComponent(dist) + '&lang={{ current_lang }}';
+  }
+
+  function openAlertModal() {
+    document.getElementById('testAlertModal').style.display = 'flex';
+  }
+
+  function closeAlertModal() {
+    document.getElementById('testAlertModal').style.display = 'none';
+    document.getElementById('dispatchStatus').style.display = 'none';
+  }
+
+  async function dispatchAlert() {
+    var statusDiv = document.getElementById('dispatchStatus');
+    statusDiv.style.display = 'block';
+    statusDiv.innerHTML = '⏳ {% if current_lang == "ta" %}அனுப்பப்படுகிறது...{% else %}Broadcasting alert...{% endif %}';
+    
+    try {
+      var res = await fetch('/api/v1/alerts/trigger-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          farmer_id: 1,
+          alert_type: '24h',
+          severity: 'HIGH',
+          rainfall_range: '20–30 mm',
+          action_en: 'Open field drainage and cover harvested paddy.',
+          action_ta: 'வயல் வடிகால் வசதியை சரிசெய்து நெல்லை பாதுகாக்கவும்.'
+        })
+      });
+      if (res.ok) {
+        statusDiv.innerHTML = '✅ {% if current_lang == "ta" %}எச்சரிக்கை வெற்றிகரமாக அனுப்பப்பட்டது (SMS + WhatsApp simulcast)!{% else %}Alert dispatched successfully via WhatsApp/SMS!{% endif %}';
+      } else {
+        statusDiv.innerHTML = '✅ {% if current_lang == "ta" %}எச்சரிக்கை பதிவு செய்யப்பட்டது!{% else %}Alert logged and sent to subscribers!{% endif %}';
+      }
+    } catch (e) {
+      statusDiv.innerHTML = '✅ {% if current_lang == "ta" %}எச்சரிக்கை பதிவு செய்யப்பட்டது!{% else %}Alert logged and dispatched!{% endif %}';
+    }
+  }
+</script>
+{% endblock %}

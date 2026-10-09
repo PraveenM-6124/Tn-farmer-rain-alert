@@ -18,9 +18,7 @@ class Location(Base, UUIDPrimaryKeyMixin, TimestampMixin):
 
     name_en: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
     name_ta: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
-    level: Mapped[str] = mapped_column(
-        String(20), nullable=False, index=True
-    )  # 'district', 'taluk', 'village'
+    level: Mapped[str] = mapped_column(String(20), nullable=False, index=True)  # 'district', 'taluk', 'village'
 
     parent_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("locations.id", ondelete="SET NULL"),
@@ -43,9 +41,7 @@ class Location(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     parent: Mapped[Optional["Location"]] = relationship(
         "Location", remote_side="Location.id", back_populates="children"
     )
-    children: Mapped[list["Location"]] = relationship(
-        "Location", back_populates="parent", cascade="all, delete-orphan"
-    )
+    children: Mapped[list["Location"]] = relationship("Location", back_populates="parent", cascade="all, delete-orphan")
 
     __table_args__ = (Index("idx_location_level_parent", "level", "parent_id"),)
 

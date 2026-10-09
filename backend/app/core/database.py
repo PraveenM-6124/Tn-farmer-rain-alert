@@ -34,10 +34,7 @@ def get_engine_url() -> str:
     """Determine database URL with fallback handling."""
     db_url = settings.DATABASE_URL
     # In test mode or when requested via env
-    if (
-        settings.ENV == "test"
-        or os.environ.get("USE_SQLITE_TEST", "").lower() == "true"
-    ):
+    if settings.ENV == "test" or os.environ.get("USE_SQLITE_TEST", "").lower() == "true":
         return "sqlite:///:memory:"
     return db_url
 
@@ -60,7 +57,10 @@ engine = create_engine(
 @event.listens_for(engine, "connect")
 def on_db_connect(dbapi_connection, connection_record):  # type: ignore[no-untyped-def]
     if isinstance(dbapi_connection, sqlite3.Connection):
-        dummy_func = lambda *args: None
+
+        def dummy_func(*args):  # type: ignore[no-untyped-def]
+            return None
+
         dbapi_connection.create_function("GeomFromEWKT", -1, dummy_func)
         dbapi_connection.create_function("ST_GeomFromEWKT", -1, dummy_func)
         dbapi_connection.create_function("AsEWKB", -1, dummy_func)

@@ -21,12 +21,10 @@ def load_translations() -> dict[str, dict[str, str]]:
         file_path = TRANSLATIONS_DIR / f"{lang}.json"
         if file_path.exists():
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     _translations_cache[lang] = json.load(f)
             except (json.JSONDecodeError, OSError) as e:
-                logger.error(
-                    "Failed to load translation file %s: %s", file_path, str(e)
-                )
+                logger.error("Failed to load translation file %s: %s", file_path, str(e))
                 _translations_cache[lang] = {}
         else:
             logger.warning("Translation file does not exist: %s", file_path)

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  #map {
+    height: 520px;
+    width: 100%;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border-color);
+    z-index: 1;
+  }
+  .map-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .impact-card {
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    text-align: center;
+  }
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    align-items: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+    <div>
+      <h1 style="font-size: 1.5rem; margin: 0;">🗺️ {{ t('map.title', current_lang) }}</h1>
+      <p style="margin: 0.25rem 0 0 0; opacity: 0.8; font-size: 0.9rem;">
+        {% if current_lang == 'ta' %}
+          தமிழ்நாட்டின் 38 மாவட்டங்களுக்கான மழை நிலவரம் & எச்சரிக்கை வரைபடம்
+        {% else %}
+          Live Meteorological Warning Map Across All 38 Districts of Tamil Nadu
+        {% endif %}
+      </p>
+    </div>
+
+    <div>
+      <a href="/dashboard?lang={{ current_lang }}" class="btn-monochrome btn-monochrome-outline" style="min-height: 40px; padding: 0.35rem 0.85rem; font-size: 0.9rem;">
+        ← {{ t('nav.weather', current_lang) }}
+      </a>
+    </div>
+  </div>
+
+  <!-- Impact Overview Grid -->
+  <div class="map-summary-grid">
+    <div class="impact-card" style="border-top: 4px solid #c62828;">
+      <div style="font-size: 1.6rem; font-weight: 700;" id="highRiskCount">3</div>
+      <div style="font-size: 0.8rem; opacity: 0.85;">
+        {% if current_lang == 'ta' %}அதிக ஆபத்து மாவட்டங்கள் (Orange/Red){% else %}High Risk Districts{% endif %}
+      </div>
+    </div>
+    <div class="impact-card" style="border-top: 4px solid #fbc02d;">
+      <div style="font-size: 1.6rem; font-weight: 700;" id="medRiskCount">4</div>
+      <div style="font-size: 0.8rem; opacity: 0.85;">
+        {% if current_lang == 'ta' %}மிதமான ஆபத்து மாவட்டங்கள் (Yellow){% else %}Moderate Risk Districts{% endif %}
+      </div>
+    </div>
+    <div class="impact-card" style="border-top: 4px solid #2e7d32;">
+      <div style="font-size: 1.6rem; font-weight: 700;" id="lowRiskCount">31</div>
+      <div style="font-size: 0.8rem; opacity: 0.85;">
+        {% if current_lang == 'ta' %}குறைந்த மழை மாவட்டங்கள் (Green){% else %}Low / Normal Rain Districts{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet Map Container -->
+  <div id="map"></div>
+
+  <!-- Legend -->
+  <div class="map-legend">
+    <span style="font-weight: 700;">{{ t('map.legend', current_lang) }}:</span>
+    <div class="legend-item">
+      <span class="legend-color" style="background: #2e7d32;"></span>
+      <span>Green (0–15 mm / Normal)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background: #fbc02d;"></span>
+      <span>Yellow (15.6–64.4 mm / Moderate)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background: #e65100;"></span>
+      <span>Orange (64.5–115.5 mm / Heavy)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background: #c62828;"></span>
+      <span>Red (>115.5 mm / Very Heavy)</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Center map over Tamil Nadu
+    var map = L.map('map').setView([11.1271, 78.6569], 7);
+
+    // High contrast OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    function getColor(warning) {
+      switch (warning) {
+        case 'RED': return '#c62828';
+        case 'ORANGE': return '#e65100';
+        case 'YELLOW': return '#fbc02d';
+        default: return '#2e7d32';
+      }
+    }
+
+    // Fetch GeoJSON rainfall layer from API
+    fetch('/api/v1/map/rainfall')
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data.features) return;
+
+        L.geoJSON(data, {
+          pointToLayer: function (feature, latlng) {
+            var color = getColor(feature.properties.warning_level);
+            return L.circleMarker(latlng, {
+              radius: 12,
+              fillColor: color,
+              color: '#000000',
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.85
+            });
+          },
+          onEachFeature: function (feature, layer) {
+            var p = feature.properties;
+            var isTa = '{{ current_lang }}' === 'ta';
+            var distName = isTa ? (p.district_ta + ' (' + p.district_en + ')') : (p.district_en + ' (' + p.district_ta + ')');
+            
+            var popupContent = '<div style="font-family: inherit; font-size: 0.9rem; min-width: 180px;">' +
+              '<h3 style="margin: 0 0 0.35rem 0; font-size: 1.05rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem;">' + distName + '</h3>' +
+              '<div><strong>' + (isTa ? 'எச்சரிக்கை:' : 'Warning Level:') + '</strong> <span style="font-weight:700; color:' + getColor(p.warning_level) + ';">' + p.warning_level + '</span></div>' +
+              '<div><strong>' + (isTa ? 'மழை அளவு:' : 'Expected Rain:') + '</strong> ' + p.expected_rain + '</div>' +
+              '<div><strong>' + (isTa ? 'வாய்ப்பு:' : 'Probability:') + '</strong> ' + p.rain_prob + '%</div>' +
+              '<div style="margin-top:0.4rem; padding-top:0.3rem; border-top: 1px dashed #ccc; font-size: 0.8rem;">' +
+              '👥 ' + p.affected_farmers + ' ' + (isTa ? 'பதிவு செய்த விவசாயிகள்' : 'Registered Farmers') +
+              '</div>' +
+              '</div>';
+
+            layer.bindPopup(popupContent);
+          }
+        }).addTo(map);
+      })
+      .catch(function (err) {
+        console.error('Error fetching map data:', err);
+      });
+
+    // Fetch summary metrics
+    fetch('/api/v1/map/impact')
+      .then(function (res) { return res.json(); })
+      .then(function (impact) {
+        if (impact.high_risk_districts) {
+          document.getElementById('highRiskCount').innerText = impact.high_risk_districts.length;
+        }
+        if (impact.medium_risk_districts) {
+          document.getElementById('medRiskCount').innerText = impact.medium_risk_districts.length;
+        }
+      })
+      .catch(function () {});
+  });
+</script>
+{% endblock %}

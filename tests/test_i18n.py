@@ -16,10 +16,10 @@ def test_translation_key_parity() -> None:
     assert en_file.exists(), "translations/en.json must exist"
     assert ta_file.exists(), "translations/ta.json must exist"
 
-    with open(en_file, "r", encoding="utf-8") as f:
+    with open(en_file, encoding="utf-8") as f:
         en_keys = set(json.load(f).keys())
 
-    with open(ta_file, "r", encoding="utf-8") as f:
+    with open(ta_file, encoding="utf-8") as f:
         ta_keys = set(json.load(f).keys())
 
     missing_in_ta = en_keys - ta_keys

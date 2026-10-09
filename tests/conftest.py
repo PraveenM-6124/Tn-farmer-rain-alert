@@ -8,26 +8,32 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 # Set test environment
 os.environ["ENV"] = "test"
 os.environ["USE_SQLITE_TEST"] = "true"
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
+import backend.app.models  # noqa: F401 - Ensure all models are registered on Base
 from backend.app.core.database import Base, get_db
 from backend.app.main import app
 
-# Create in-memory SQLite test database engine
+# Create in-memory SQLite test database engine using StaticPool so all threads/sessions share the same DB
 test_engine = create_engine(
     "sqlite:///:memory:",
     connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
 )
 
 
 @event.listens_for(test_engine, "connect")
 def on_test_db_connect(dbapi_connection, connection_record):  # type: ignore[no-untyped-def]
     if isinstance(dbapi_connection, sqlite3.Connection):
-        dummy_func = lambda *args: None
+
+        def dummy_func(*args):  # type: ignore[no-untyped-def]
+            return None
+
         dbapi_connection.create_function("GeomFromEWKT", -1, dummy_func)
         dbapi_connection.create_function("ST_GeomFromEWKT", -1, dummy_func)
         dbapi_connection.create_function("AsEWKB", -1, dummy_func)
